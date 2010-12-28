@@ -1,4 +1,10 @@
-﻿using System;
+﻿////////////////////////////////////////////////////////////////////////
+// HlslDom, Copyright (c) 2010, Maximilian Burke
+// This file is distributed under the FreeBSD license. 
+// See LICENSE.TXT for details.
+////////////////////////////////////////////////////////////////////////
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 
