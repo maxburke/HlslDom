@@ -1,0 +1,14 @@
+*.suo
+*.ncb
+*.exe
+*.user
+*.cachefile
+*.xml
+*.txt
+*.pdb
+*.bsp
+*.cache
+*.dll
+*.xnb
+*.swp
+
