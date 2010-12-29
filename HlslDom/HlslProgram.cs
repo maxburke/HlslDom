@@ -27,6 +27,9 @@ namespace Hlsl
         }
     }
 
+    /// <summary>
+    /// Generic exception thrown when BadThings(tm) are done with the underlying HlslDom.
+    /// </summary>
     class ShaderDomException : Exception
     {
         public new readonly string Message;
@@ -37,6 +40,10 @@ namespace Hlsl
         }
     }
 
+    /// <summary>
+    /// ShaderTypes are used for when building Effects and the full Effect description
+    /// must specify the various shader types within the Techniques section.
+    /// </summary>
     public enum ShaderType
     {
         VertexShader,
@@ -44,13 +51,20 @@ namespace Hlsl
         NUM_SHADER_TYPES
     }
 
+    /// <summary>
+    /// Supported shader profiles.
+    /// </summary>
     public enum ShaderProfile
     {
         vs_1_1,
         ps_2_0, ps_2_x, vs_2_0, vs_2_x,
-        ps_3_0, vs_3_0
+        ps_3_0, vs_3_0,
+        xps_3_0, xvs_3_0
     }
 
+    /// <summary>
+    /// Function base class used for both intrinsic and user-defined functions.
+    /// </summary>
     abstract class Function
     {
         public readonly string Name;
@@ -69,6 +83,9 @@ namespace Hlsl
         public abstract Type GetReturnType(Value[] args);
     }
 
+    /// <summary>
+    /// UserDefinedFunctions are built using the HlslDom by the users of this library.
+    /// </summary>
     class UserDefinedFunction : Function
     {
         List<Expr> Expressions = new List<Expr>();
@@ -80,6 +97,11 @@ namespace Hlsl
         {
         }
 
+        /// <summary>
+        /// Verify that this function can be called with the provided arguments.
+        /// </summary>
+        /// <param name="args">Arguments to check against function declaration.</param>
+        /// <returns>True if the call is valid, false otherwise.</returns>
         public override bool IsValidCall(Value[] args)
         {
             for (int i = 0; i < args.Length; ++i)
@@ -91,11 +113,21 @@ namespace Hlsl
             return true;
         }
 
+        /// <summary>
+        /// Determine the return type of the function.
+        /// </summary>
+        /// <param name="args">Unused.</param>
+        /// <returns>Function return type.</returns>
         public override Type GetReturnType(Value[] args)
         {
             return DetermineReturnType();
         }
 
+        /// <summary>
+        /// Adds an argument to the function.
+        /// </summary>
+        /// <param name="structType">Argument type.</param>
+        /// <returns>A Value instance representing the parameter.</returns>
         public Value AddArgument(Type structType)
         {
             if (!(structType is StructType))
@@ -107,6 +139,12 @@ namespace Hlsl
             return v;
         }
 
+        /// <summary>
+        /// Adds an argument to the function with a specified semantic.
+        /// </summary>
+        /// <param name="argType">Argument type.</param>
+        /// <param name="semantic">Argument semantic.</param>
+        /// <returns>A Value instance representing the parameter.</returns>
         public Value AddArgument(Type argType, Semantic semantic)
         {
             Value v = new Value(argType, string.Format("arg{0}", Arguments.Count));
@@ -115,16 +153,31 @@ namespace Hlsl
             return v;
         }
 
-        public void AddExpr(Expr e)
+        /// <summary>
+        /// Adds an expression to the body of the function.
+        /// </summary>
+        /// <param name="expr">Expression.</param>
+        public void AddExpr(Expr expr)
         {
-            Expressions.Add(e);
+            Expressions.Add(expr);
         }
 
+        /// <summary>
+        /// Returns the parameter value at index i.
+        /// </summary>
+        /// <param name="i">Argument index.</param>
+        /// <returns>Parameter.</returns>
         public Value GetArgValue(int i)
         {
             return Arguments[i].first;
         }
 
+        /// <summary>
+        /// Internal function used to determine the return type of the function.
+        /// This method also performs some validation that all ReturnExprs return
+        /// the same type.
+        /// </summary>
+        /// <returns>Return type.</returns>
         Type DetermineReturnType()
         {
             if (FnReturnType != null)
@@ -182,14 +235,26 @@ namespace Hlsl
         }
     }
 
+    /// <summary>
+    /// HlslPrograms encapsulate all user defined content, such as all
+    /// user defined functions and types. This type can, and should, be
+    /// disposed of between uses to flush out any pre-existing types. 
+    /// </summary>
     class HlslProgram : IDisposable
     {
         List<DeclExpr> Globals = new List<DeclExpr>();
         List<Function> Functions = new List<Function>();
         List<UserDefinedFunction> UserFunctions = new List<UserDefinedFunction>();
         Pair<ShaderProfile, Function>[] Shaders = new Pair<ShaderProfile, Function>[(int)ShaderType.NUM_SHADER_TYPES];
+
+        /// <summary>
+        /// The TypeRegistry maintains all user-defined types.
+        /// </summary>
         public TypeRegistry Types = new TypeRegistry();
 
+        /// <summary>
+        /// Default HlslProgram constructor.
+        /// </summary>
         public HlslProgram()
         {
             Functions.AddRange(Intrinsics.DataTransformFunction.CreateDataTransformFunctions());
@@ -241,6 +306,11 @@ namespace Hlsl
             Functions.Add(new Intrinsics.TexCUBEProj());
         }
 
+        /// <summary>
+        /// Searches all functions, intrinsic or user-defined, for the one specified.
+        /// </summary>
+        /// <param name="name">Function name.</param>
+        /// <returns>Requested function if it exists.</returns>
         public Function GetFunctionByName(string name)
         {
             foreach (Function fn in Functions)
@@ -250,6 +320,10 @@ namespace Hlsl
             throw new ShaderDomException("Function does not exist!");
         }
 
+        /// <summary>
+        /// Add a user defined function to the HlslProgram.
+        /// </summary>
+        /// <param name="function">Function to be added.</param>
         public void AddFunction(UserDefinedFunction function)
         {
             if (Functions.Contains(function))
@@ -259,11 +333,21 @@ namespace Hlsl
             UserFunctions.Add(function);
         }
 
+        /// <summary>
+        /// Adds a global variable.
+        /// </summary>
+        /// <param name="globalVariableDecl">Global variable declaration.</param>
         public void AddGlobal(DeclExpr globalVariableDecl)
         {
             Globals.Add(globalVariableDecl);
         }
 
+        /// <summary>
+        /// Sets the appropriate shader entry point when generating Effects.
+        /// </summary>
+        /// <param name="type">Shader type, ie: vertex or pixel.</param>
+        /// <param name="function">Shader entry point.</param>
+        /// <param name="profile">Shader profile to compile against.</param>
         public void SetShader(ShaderType type, UserDefinedFunction function, ShaderProfile profile)
         {
             if (!UserFunctions.Contains(function))
@@ -292,11 +376,19 @@ namespace Hlsl
             return SB;
         }
 
+        /// <summary>
+        /// Emit raw shader code if compiling shaders separately.
+        /// </summary>
+        /// <returns>Raw shader code.</returns>
         public string EmitRawShaderCode()
         {
             return EmitRawShaderCodeToBuilder().ToString();
         }
 
+        /// <summary>
+        /// Emits Effect code. Currently only supports one pass.
+        /// </summary>
+        /// <returns>Effect code.</returns>
         public string EmitEffect()
         {
             StringBuilder SB = EmitRawShaderCodeToBuilder();

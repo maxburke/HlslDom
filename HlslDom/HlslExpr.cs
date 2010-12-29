@@ -404,8 +404,8 @@ namespace Hlsl.Expressions
         public ForExpr(DeclExpr initializer, Expr test, Expr update, LoopAttributes attributes)
             : this(initializer, test, update, attributes, 0)
         {
-            if (attributes == (int)LoopAttributes.UNROLL)
-                throw new ShaderDomException("Unroll attribute specified without an unroll depth!")
+            if (attributes == LoopAttributes.UNROLL)
+                throw new ShaderDomException("Unroll attribute specified without an unroll depth!");
         }
 
         /// <summary>
@@ -445,8 +445,6 @@ namespace Hlsl.Expressions
         {
             StringBuilder SB = new StringBuilder();
 
-            string attribute = null;
-
             switch (Attributes)
             {
                 case LoopAttributes.UNROLL:
@@ -471,6 +469,9 @@ namespace Hlsl.Expressions
         }
     }
 
+    /// <summary>
+    /// CallExprs represent a call to a function, either intrinsic or user defined.
+    /// </summary>
     class CallExpr : Expr
     {
         Function Fn;
@@ -494,6 +495,11 @@ namespace Hlsl.Expressions
             }
         }
 
+        /// <summary>
+        /// Construct a CallExpr to the specified function with the specified parameters.
+        /// </summary>
+        /// <param name="fn">Function to call.</param>
+        /// <param name="parameters">Parameters for function.</param>
         public CallExpr(Function fn, Expr[] parameters)
         {
             Fn = fn;
@@ -510,7 +516,11 @@ namespace Hlsl.Expressions
         {
             StringBuilder SB = new StringBuilder();
 
-            SB.AppendFormat("{0} {1} = {2}(", FnValue.ValueType.TypeName(), FnValue, Fn.Name);
+            // Clip has no return value.
+            if (!(Fn is Hlsl.Intrinsics.Clip))
+                SB.AppendFormat("{0} {1} = {2}(", FnValue.ValueType.TypeName(), FnValue, Fn.Name);
+            else
+                SB.AppendFormat("{0}(", Fn.Name);        
 
             for (int i = 0; i < Parameters.Length; ++i)
                 SB.AppendFormat("{0}{1}", Parameters[i], i < Parameters.Length - 1 ? ", " : "");
@@ -520,6 +530,13 @@ namespace Hlsl.Expressions
         }
     }
 
+    /// <summary>
+    /// AssignmentExprs represent the assignment of one value to another and 
+    /// permit the addition of modifiers such as +/-/*/etc. Please note that 
+    /// currently the AssignmentExprs do no checking if the provided L-value 
+    /// is valid, it will currently allow a literal value to be used on the 
+    /// LHS which will then fail compilation.
+    /// </summary>
     class AssignmentExpr : Expr
     {
         Operator Modifier;
@@ -536,11 +553,22 @@ namespace Hlsl.Expressions
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Construct an AssignmentExpr.
+        /// </summary>
+        /// <param name="lhsValue">Assignment left hand side, must be an L-value.</param>
+        /// <param name="rhsValue">Assignment right hand side.</param>
         public AssignmentExpr(Value lhsValue, Value rhsValue)
             : this(lhsValue, rhsValue, Operator.IDENTITY)
         {
         }
 
+        /// <summary>
+        /// Construct a self-modifying AssignmentExpr.
+        /// </summary>
+        /// <param name="lhsValue">Assignment left hand side, must be an L-value.</param>
+        /// <param name="rhsValue">Assignment right hand side.</param>
+        /// <param name="modifier">Modification operation.</param>
         public AssignmentExpr(Value lhsValue, Value rhsValue, Operator modifier)
         {
             if (modifier <= Operator.FIRST_MODIFIER_OPERATOR || modifier >= Operator.LAST_MODIFIER_OPERATOR)
@@ -553,10 +581,30 @@ namespace Hlsl.Expressions
 
         public override string ToString()
         {
-            return string.Format("{0} = {1};", LhsValue.Name, RhsValue.Name);
+            string modifierString = null;
+
+            switch (Modifier)
+            {
+                case Operator.ADD: modifierString = "+"; break;
+                case Operator.AND: modifierString = "&"; break;
+                case Operator.DIV: modifierString = "/"; break;
+                case Operator.IDENTITY: modifierString = ""; break;
+                case Operator.MOD: modifierString = "%"; break;
+                case Operator.MUL: modifierString = "*"; break;
+                case Operator.OR: modifierString = "|"; break;
+                case Operator.SHL: modifierString = "<<"; break;
+                case Operator.SHR: modifierString = ">>"; break;
+                case Operator.SUB: modifierString = "-"; break;
+                case Operator.XOR: modifierString = "^"; break;
+            }
+
+            return string.Format("{0} {1}= {2};", LhsValue.Name, modifierString, RhsValue.Name);
         }
     }
 
+    /// <summary>
+    /// LiteralExprs represent a literal value, such as float4(0,0,0,0).
+    /// </summary>
     class LiteralExpr : Expr
     {
         Type LiteralType;
@@ -565,7 +613,7 @@ namespace Hlsl.Expressions
         /// <summary>
         /// Default instance of LiteralExpr creates a literal zero for the specified type.
         /// </summary>
-        /// <param name="literalType"></param>
+        /// <param name="literalType">Type to construct.</param>
         public LiteralExpr(Type literalType)
         {
             if (literalType is SamplerType)
@@ -587,13 +635,21 @@ namespace Hlsl.Expressions
                 Initializers[i] = initializer;
         }
 
-        public LiteralExpr(Type literalType, object[] initializers)
+        /// <summary>
+        /// Construct a LiteralExpr with the specified values.
+        /// </summary>
+        /// <param name="literalType">Type to construct.</param>
+        /// <param name="initializers">List of initializer values.</param>
+        public LiteralExpr(Type literalType, params object[] initializers)
         {
             LiteralType = literalType;
             Initializers = initializers;
 
             if (initializers == null || initializers.Length == 0)
                 throw new ShaderDomException("Literal initializer must be specified.");
+
+            if (initializers.Length != LiteralType.TotalElements)
+                throw new ShaderDomException("Literal initializers must be provided for all elements!");
         }
 
         public override Value Value
@@ -627,6 +683,11 @@ namespace Hlsl.Expressions
         }
     }
 
+    /// <summary>
+    /// Represents a function return value. Every user defined function must contain at
+    /// least one ReturnExpr and, in the case of a function having multiple, the 
+    /// underlying types must all agree.
+    /// </summary>
     class ReturnExpr : Expr
     {
         Expr ReturnValue;
@@ -641,6 +702,10 @@ namespace Hlsl.Expressions
             return false;
         }
 
+        /// <summary>
+        /// Construct a ReturnExpr.
+        /// </summary>
+        /// <param name="value">Value to return.</param>
         public ReturnExpr(Expr value)
         {
             ReturnValue = value;
@@ -655,6 +720,10 @@ namespace Hlsl.Expressions
         }
     }
 
+    /// <summary>
+    /// StructMemberExprs evaluate to a particular struct member and may be used
+    /// as both L-values and R-values. 
+    /// </summary>
     class StructMemberExpr : Expr
     {
         Value FieldValue;
@@ -669,6 +738,11 @@ namespace Hlsl.Expressions
             get { return FieldValue; }
         }
 
+        /// <summary>
+        /// Construct a StructMemberExpr with a struct field index.
+        /// </summary>
+        /// <param name="value">StructType instance.</param>
+        /// <param name="fieldIndex">StructType's StructField index.</param>
         public StructMemberExpr(Value value, int fieldIndex)
         {
             StructType structType = value.ValueType as StructType;
@@ -679,6 +753,11 @@ namespace Hlsl.Expressions
             FieldValue = new Value(field.FieldType, value.Name + "." + field.FieldName);
         }
 
+        /// <summary>
+        /// Construct a StructMemberExpr with a struct field instance.
+        /// </summary>
+        /// <param name="value">StructType instance.</param>
+        /// <param name="field">StructType's StructField instance.</param>
         public StructMemberExpr(Value value, StructField field)
         {
             if (!(value.ValueType is StructType))
@@ -687,6 +766,11 @@ namespace Hlsl.Expressions
             FieldValue = new Value(field.FieldType, value.Name + "." + field.FieldName);
         }
 
+        /// <summary>
+        /// Construct a StructMemberExpr with a struct field name.
+        /// </summary>
+        /// <param name="value">StructType instance.</param>
+        /// <param name="fieldName">StructType's field name.</param>
         public StructMemberExpr(Value value, string fieldName)
         {
             StructType structType = value.ValueType as StructType;

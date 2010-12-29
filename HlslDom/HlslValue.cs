@@ -12,6 +12,9 @@ using System.Text;
 
 namespace Hlsl
 {
+    /// <summary>
+    /// Value semantic.
+    /// </summary>
     struct Semantic
     {
         public SemanticType Type;
@@ -84,6 +87,10 @@ namespace Hlsl
         }
     }
 
+    /// <summary>
+    /// HlslDom Values represent a pairing of types with a referenceable name and
+    /// optional semantic.
+    /// </summary>
     class Value
     {
         public Type ValueType { get; private set; }

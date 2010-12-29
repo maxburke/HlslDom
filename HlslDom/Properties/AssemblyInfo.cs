@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("HlslDom")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
+[assembly: AssemblyCompany("Max Burke")]
 [assembly: AssemblyProduct("HlslDom")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2010")]
+[assembly: AssemblyCopyright("Copyright © Maximilian Burke")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
