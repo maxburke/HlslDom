@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("HlslDom")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Max Burke")]
+[assembly: AssemblyCompany("Maximilian Burke")]
 [assembly: AssemblyProduct("HlslDom")]
 [assembly: AssemblyCopyright("Copyright © Maximilian Burke")]
 [assembly: AssemblyTrademark("")]
