@@ -171,7 +171,7 @@ namespace Hlsl
         {
             int result = 0;
 
-            result += EmptyProgramTest() == null ? 0 : 1;
+            result += EmptyProgramTest() == "" ? 0 : 1;
             result += Validate(ArgAssignedToOutputTest());
             result += Validate(SimpleStructMemberTest());
             result += Validate(SimpleFunctionCallTest());

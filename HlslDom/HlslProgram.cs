@@ -368,7 +368,8 @@ namespace Hlsl
             foreach (DeclExpr GVE in Globals)
                 SB.AppendLine(GVE.ToString());
 
-            SB.AppendLine();
+            if (Globals.Count > 0 || structTypes.Count > 0)
+                SB.AppendLine();
 
             foreach (Function fn in UserFunctions)
                 SB.AppendLine(fn.ToString());
