@@ -3,6 +3,10 @@
 // This file is distributed under the FreeBSD license. 
 // See LICENSE.TXT for details.
 ////////////////////////////////////////////////////////////////////////
+// This file includes definitions of all the HLSL (as of SM3) intrinsics
+// and provides, for each intrinsic, validation methods for input values
+// as well as return type determination functionality.
+////////////////////////////////////////////////////////////////////////
 
 using System;
 

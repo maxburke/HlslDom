@@ -3,6 +3,10 @@
 // This file is distributed under the FreeBSD license. 
 // See LICENSE.TXT for details.
 ////////////////////////////////////////////////////////////////////////
+// This file defines the Value type. HlslDom Values represent a paired
+// type + tag and can be used as an the input to expressions and calls
+// to functions.
+////////////////////////////////////////////////////////////////////////
 
 using System.Text;
 

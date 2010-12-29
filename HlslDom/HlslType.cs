@@ -3,6 +3,10 @@
 // This file is distributed under the FreeBSD license. 
 // See LICENSE.TXT for details.
 ////////////////////////////////////////////////////////////////////////
+// This module describes the HLSL type system, including all basic types
+// like scalar bools/floats/ints, composite types like vectors and
+// matrices, samplers, and user defined struct types.
+////////////////////////////////////////////////////////////////////////
 
 using System;
 using System.Collections.ObjectModel;

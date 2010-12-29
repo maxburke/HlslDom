@@ -3,6 +3,9 @@
 // This file is distributed under the FreeBSD license. 
 // See LICENSE.TXT for details.
 ////////////////////////////////////////////////////////////////////////
+// This module encapsulates the structure for an HLSL program, including
+// user defined functions and effect framework plumbing.
+////////////////////////////////////////////////////////////////////////
 
 using System;
 using System.Collections.Generic;
