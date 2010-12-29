@@ -1,0 +1,7 @@
+= HlslDom =
+
+HlslDom is a programmatic interface for HLSL program creation. It is written in C# and 
+is intended for integration into XNA game development.
+
+HlslDom was written by Max Burke (@maximilianburke) and is licensed under the 2-clause
+BSD license.
