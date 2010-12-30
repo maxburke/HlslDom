@@ -13,7 +13,7 @@ using System.Text;
 
 namespace Hlsl.Expressions
 {
-    enum Operator
+    public enum Operator
     {
         FIRST_MODIFIER_OPERATOR,
         IDENTITY,
@@ -40,7 +40,7 @@ namespace Hlsl.Expressions
     /// or right-hand side of an expression, however a function call can be used
     /// as a value.
     /// </summary>
-    abstract class Expr
+    public abstract class Expr
     {
         /// <summary>
         /// Predicate used to determine if a particular expression has a value.
@@ -57,7 +57,7 @@ namespace Hlsl.Expressions
     /// <summary>
     /// DeclExpr is used to create a variable declaration expression.
     /// </summary>
-    class DeclExpr : Expr
+    public class DeclExpr : Expr
     {
         Type Type;
         string Name;
@@ -138,7 +138,7 @@ namespace Hlsl.Expressions
     /// The CommaExpr represents a comma expression, ie: "EXPR1, EXPR2", 
     /// and evaluates to the expression on the right hand side.
     /// </summary>
-    class CommaExpr : Expr
+    public class CommaExpr : Expr
     {
         public readonly Expr LHS;
         public readonly Expr RHS;
@@ -173,7 +173,7 @@ namespace Hlsl.Expressions
     /// need not evaluate to a particular value, such as the body of a
     /// for-loop or if-clause.
     /// </summary>
-    abstract class CompoundExpr : Expr
+    public abstract class CompoundExpr : Expr
     {
         protected List<Expr> Body = new List<Expr>();
 
@@ -206,7 +206,7 @@ namespace Hlsl.Expressions
     /// Represents an if clause, including both the test expression and the 
     /// body of the clause.
     /// </summary>
-    class IfExpr : CompoundExpr
+    public class IfExpr : CompoundExpr
     {
         Expr Test;
 
@@ -252,7 +252,7 @@ namespace Hlsl.Expressions
     /// <summary>
     /// ElseExpr is the associated else-clause for an if, if necessary.
     /// </summary>
-    class ElseExpr : CompoundExpr
+    public class ElseExpr : CompoundExpr
     {
         IfExpr AssociatedIfExpr;
 
@@ -294,7 +294,7 @@ namespace Hlsl.Expressions
     /// WhileExprs represent while loops, loops that continue until the specified
     /// test condition evaluates true.
     /// </summary>
-    class WhileExpr : CompoundExpr
+    public class WhileExpr : CompoundExpr
     {
         Expr Test;
 
@@ -344,7 +344,7 @@ namespace Hlsl.Expressions
     /// to determine if the loop should continue, and an update expression
     /// that updates loop counters.
     /// </summary>
-    class ForExpr : CompoundExpr
+    public class ForExpr : CompoundExpr
     {
         DeclExpr Initializer;
         Expr Test;
@@ -472,7 +472,7 @@ namespace Hlsl.Expressions
     /// <summary>
     /// CallExprs represent a call to a function, either intrinsic or user defined.
     /// </summary>
-    class CallExpr : Expr
+    public class CallExpr : Expr
     {
         Function Fn;
         Value[] Parameters;
@@ -537,7 +537,7 @@ namespace Hlsl.Expressions
     /// is valid, it will currently allow a literal value to be used on the 
     /// LHS which will then fail compilation.
     /// </summary>
-    class AssignmentExpr : Expr
+    public class AssignmentExpr : Expr
     {
         Operator Modifier;
         Value LhsValue;
@@ -605,7 +605,7 @@ namespace Hlsl.Expressions
     /// <summary>
     /// LiteralExprs represent a literal value, such as float4(0,0,0,0).
     /// </summary>
-    class LiteralExpr : Expr
+    public class LiteralExpr : Expr
     {
         Type LiteralType;
         object[] Initializers;
@@ -688,7 +688,7 @@ namespace Hlsl.Expressions
     /// least one ReturnExpr and, in the case of a function having multiple, the 
     /// underlying types must all agree.
     /// </summary>
-    class ReturnExpr : Expr
+    public class ReturnExpr : Expr
     {
         Expr ReturnValue;
 
@@ -724,7 +724,7 @@ namespace Hlsl.Expressions
     /// StructMemberExprs evaluate to a particular struct member and may be used
     /// as both L-values and R-values. 
     /// </summary>
-    class StructMemberExpr : Expr
+    public class StructMemberExpr : Expr
     {
         Value FieldValue;
 

@@ -30,7 +30,7 @@ namespace Hlsl
     /// <summary>
     /// Generic exception thrown when BadThings(tm) are done with the underlying HlslDom.
     /// </summary>
-    class ShaderDomException : Exception
+    public class ShaderDomException : Exception
     {
         public new readonly string Message;
 
@@ -65,7 +65,7 @@ namespace Hlsl
     /// <summary>
     /// Function base class used for both intrinsic and user-defined functions.
     /// </summary>
-    abstract class Function
+    public abstract class Function
     {
         public readonly string Name;
 
@@ -86,7 +86,7 @@ namespace Hlsl
     /// <summary>
     /// UserDefinedFunctions are built using the HlslDom by the users of this library.
     /// </summary>
-    class UserDefinedFunction : Function
+    public class UserDefinedFunction : Function
     {
         List<Expr> Expressions = new List<Expr>();
         List<Pair<Value, Semantic>> Arguments = new List<Pair<Value, Semantic>>();
@@ -240,7 +240,7 @@ namespace Hlsl
     /// user defined functions and types. This type can, and should, be
     /// disposed of between uses to flush out any pre-existing types. 
     /// </summary>
-    class HlslProgram : IDisposable
+    public class HlslProgram : IDisposable
     {
         List<DeclExpr> Globals = new List<DeclExpr>();
         List<Function> Functions = new List<Function>();

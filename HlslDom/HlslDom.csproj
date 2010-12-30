@@ -47,7 +47,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HlslDomTest.cs" />
     <Compile Include="HlslExpr.cs" />
     <Compile Include="HlslIntrinsic.cs" />
     <Compile Include="HlslProgram.cs" />

@@ -51,6 +51,12 @@
     <Compile Include="HlslDomTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HlslDom\HlslDom.csproj">
+      <Project>{3F8E935A-6A95-4438-8F15-ED4D7F0FBD38}</Project>
+      <Name>HlslDom</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

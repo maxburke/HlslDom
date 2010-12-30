@@ -15,7 +15,7 @@ namespace Hlsl
     /// <summary>
     /// Value semantic.
     /// </summary>
-    struct Semantic
+    public struct Semantic
     {
         public SemanticType Type;
         public int Index;
@@ -91,7 +91,7 @@ namespace Hlsl
     /// HlslDom Values represent a pairing of types with a referenceable name and
     /// optional semantic.
     /// </summary>
-    class Value
+    public class Value
     {
         public Type ValueType { get; private set; }
         public string Name;

@@ -18,7 +18,7 @@ namespace Hlsl
     /// <summary>
     /// StructField represents one field for a structure.
     /// </summary>
-    class StructField
+    public class StructField
     {
         /// <summary>
         /// Constructs a StructField.
@@ -70,7 +70,7 @@ namespace Hlsl
     /// <summary>
     /// Abstract type class used as the base for all HlslDom types.
     /// </summary>
-    abstract class Type
+    public abstract class Type
     {
         public abstract string TypeName();
 
@@ -128,7 +128,7 @@ namespace Hlsl
     /// ScalarType is the base type for all scalar types, such as 1-dimensional
     /// bools, floats, ints, and uints.
     /// </summary>
-    abstract class ScalarType : Type
+    public abstract class ScalarType : Type
     {
         protected ScalarType() { }
 
@@ -151,7 +151,7 @@ namespace Hlsl
     /// <summary>
     /// Boolean type.
     /// </summary>
-    class BoolType : ScalarType
+    public class BoolType : ScalarType
     {
         public BoolType() { }
 
@@ -164,7 +164,7 @@ namespace Hlsl
     /// <summary>
     /// 32-bit signed integer type.
     /// </summary>
-    class IntType : ScalarType
+    public class IntType : ScalarType
     {
         public IntType() { }
 
@@ -177,7 +177,7 @@ namespace Hlsl
     /// <summary>
     /// 32-bit unsigned integer type.
     /// </summary>
-    class UIntType : ScalarType
+    public class UIntType : ScalarType
     {
         public UIntType() { }
 
@@ -190,7 +190,7 @@ namespace Hlsl
     /// <summary>
     /// 32-bit floating point type.
     /// </summary>
-    class FloatType : ScalarType
+    public class FloatType : ScalarType
     {
         public FloatType() { }
 
@@ -203,7 +203,7 @@ namespace Hlsl
     /// <summary>
     /// Texture sampler type.
     /// </summary>
-    class SamplerType : Type
+    public class SamplerType : Type
     {
         public SamplerType() { }
 
@@ -232,7 +232,7 @@ namespace Hlsl
     /// Derived types are the base for non-scalar aggregate types, like
     /// vectors, matrices, or structs.
     /// </summary>
-    abstract class DerivedType : Type
+    public abstract class DerivedType : Type
     {
         protected DerivedType() { }
     }
@@ -240,7 +240,7 @@ namespace Hlsl
     /// <summary>
     /// Multi-element vector type.
     /// </summary>
-    class VectorType : DerivedType
+    public class VectorType : DerivedType
     {
         public readonly Type BaseType;
         int VectorDimension;
@@ -289,7 +289,7 @@ namespace Hlsl
     /// <summary>
     /// Multi-vector matrix type.
     /// </summary>
-    class MatrixType : DerivedType
+    public class MatrixType : DerivedType
     {
         public readonly Type BaseType;
         int MatrixDimension;
@@ -338,7 +338,7 @@ namespace Hlsl
     /// <summary>
     /// StructTypes are the user-defined aggregate types. 
     /// </summary>
-    class StructType : DerivedType
+    public class StructType : DerivedType
     {
         public readonly string Name;
         public readonly StructField[] Fields;
@@ -399,7 +399,7 @@ namespace Hlsl
     /// via the type registry, all other direct creation of types will result in
     /// undefined behavior.
     /// </summary>
-    class TypeRegistry
+    public class TypeRegistry
     {
         static BoolType sBoolType = new BoolType();
         static IntType sIntType = new IntType();
