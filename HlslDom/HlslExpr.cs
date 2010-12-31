@@ -13,9 +13,13 @@ using System.Text;
 
 namespace Hlsl.Expressions
 {
-    public enum Operator
+    /// <summary>
+    /// The opcode class represents operators like add, subtract,
+    /// multiply, divide, and other operations like shifts and 
+    /// boolean operations.
+    /// </summary>
+    public enum OpCode
     {
-        FIRST_MODIFIER_OPERATOR,
         IDENTITY,
         ADD,
         SUB,
@@ -27,9 +31,33 @@ namespace Hlsl.Expressions
         AND,
         OR,
         XOR,
-        LAST_MODIFIER_OPERATOR,
-
         NOT,
+    }
+
+    /// <summary>
+    /// Internal class used only to aid in outputting opcodes to strings.
+    /// </summary>
+    class Operator
+    {
+        public static string ToString(OpCode opCode)
+        {
+            switch (opCode)
+            {
+                case OpCode.ADD: return "+";
+                case OpCode.AND: return "&";
+                case OpCode.DIV: return "/";
+                case OpCode.IDENTITY: return "";
+                case OpCode.MOD: return "%";
+                case OpCode.MUL: return "*";
+                case OpCode.OR: return "|";
+                case OpCode.SHL: return "<<";
+                case OpCode.SHR: return ">>";
+                case OpCode.SUB: return "-";
+                case OpCode.XOR: return "^";
+            }
+
+            return null;
+        }
     }
 
     /// <summary>
@@ -52,6 +80,53 @@ namespace Hlsl.Expressions
         /// 
         /// </summary>
         public abstract Value Value { get; }
+    }
+
+    /// <summary>
+    /// BinaryExprs represent binary expressions, such as multiplication or
+    /// addition. These expressions require that the types of both sides 
+    /// match. When emitted to HLSL, these expressions will automatically
+    /// parenthesize so as to follow program ordering.
+    /// </summary>
+    public class BinaryExpr : Expr
+    {
+        OpCode ExprOpCode;
+        Value LHS;
+        Value RHS;
+
+        /// <summary>
+        /// Construct a BinaryExpr with the specified values and operation.
+        /// </summary>
+        /// <param name="lhs">Left hand side.</param>
+        /// <param name="rhs">Right hand side.</param>
+        /// <param name="oper">Operator.</param>
+        public BinaryExpr(Value lhs, Value rhs, OpCode oper)
+        {
+            if (lhs.ValueType != rhs.ValueType)
+                throw new ShaderDomException("BinaryExpr types must match!");
+
+            if (oper == OpCode.IDENTITY)
+                throw new ShaderDomException("Identity operator is not valid!");
+
+            LHS = lhs;
+            RHS = rhs;
+            ExprOpCode = oper;
+        }
+
+        public override bool HasValue()
+        {
+            return true;
+        }
+
+        public override Value Value
+        {
+            get { return new Value(LHS.ValueType, ToString()); }
+        }
+
+        public override string ToString()
+        {
+            return string.Format("({0} {1} {2})", LHS.Name, Operator.ToString(ExprOpCode), RHS.Name);
+        }
     }
 
     /// <summary>
@@ -539,7 +614,7 @@ namespace Hlsl.Expressions
     /// </summary>
     public class AssignmentExpr : Expr
     {
-        Operator Modifier;
+        OpCode Modifier;
         Value LhsValue;
         Value RhsValue;
 
@@ -559,7 +634,7 @@ namespace Hlsl.Expressions
         /// <param name="lhsValue">Assignment left hand side, must be an L-value.</param>
         /// <param name="rhsValue">Assignment right hand side.</param>
         public AssignmentExpr(Value lhsValue, Value rhsValue)
-            : this(lhsValue, rhsValue, Operator.IDENTITY)
+            : this(lhsValue, rhsValue, OpCode.IDENTITY)
         {
         }
 
@@ -569,11 +644,8 @@ namespace Hlsl.Expressions
         /// <param name="lhsValue">Assignment left hand side, must be an L-value.</param>
         /// <param name="rhsValue">Assignment right hand side.</param>
         /// <param name="modifier">Modification operation.</param>
-        public AssignmentExpr(Value lhsValue, Value rhsValue, Operator modifier)
+        public AssignmentExpr(Value lhsValue, Value rhsValue, OpCode modifier)
         {
-            if (modifier <= Operator.FIRST_MODIFIER_OPERATOR || modifier >= Operator.LAST_MODIFIER_OPERATOR)
-                throw new ShaderDomException(string.Format("Operator {0} cannot be used to modify an assignment!", modifier));
-
             LhsValue = lhsValue;
             RhsValue = rhsValue;
             Modifier = modifier;
@@ -581,23 +653,7 @@ namespace Hlsl.Expressions
 
         public override string ToString()
         {
-            string modifierString = null;
-
-            switch (Modifier)
-            {
-                case Operator.ADD: modifierString = "+"; break;
-                case Operator.AND: modifierString = "&"; break;
-                case Operator.DIV: modifierString = "/"; break;
-                case Operator.IDENTITY: modifierString = ""; break;
-                case Operator.MOD: modifierString = "%"; break;
-                case Operator.MUL: modifierString = "*"; break;
-                case Operator.OR: modifierString = "|"; break;
-                case Operator.SHL: modifierString = "<<"; break;
-                case Operator.SHR: modifierString = ">>"; break;
-                case Operator.SUB: modifierString = "-"; break;
-                case Operator.XOR: modifierString = "^"; break;
-            }
-
+            string modifierString = Operator.ToString(Modifier);
             return string.Format("{0} {1}= {2};", LhsValue.Name, modifierString, RhsValue.Name);
         }
     }
