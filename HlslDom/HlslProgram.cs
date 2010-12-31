@@ -128,12 +128,9 @@ namespace Hlsl
         /// </summary>
         /// <param name="structType">Argument type.</param>
         /// <returns>A Value instance representing the parameter.</returns>
-        public Value AddArgument(Type structType)
+        public Value AddArgument(Type argType)
         {
-            if (!(structType is StructType))
-                throw new ShaderDomException("Argument must be a struct type or have a semantic!");
-
-            Value v = new Value(structType, string.Format("arg{0}", Arguments.Count));
+            Value v = new Value(argType, string.Format("arg{0}", Arguments.Count));
             Arguments.Add(new Pair<Value, Semantic>(v, new Semantic(Semantic.SemanticType.NONE)));
 
             return v;
