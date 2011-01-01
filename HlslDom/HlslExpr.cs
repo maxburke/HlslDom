@@ -587,6 +587,15 @@ namespace Hlsl.Expressions
                 throw new ShaderDomException(string.Format("Call to {0} is not valid!", fn.Name));
         }
 
+        public CallExpr(Function fn, Value[] parameterValues)
+        {
+            Fn = fn;
+            Parameters = parameterValues;
+
+            if (!fn.IsValidCall(Parameters))
+                throw new ShaderDomException(string.Format("Call to {0} is not valid!", fn.Name));
+        }
+
         public override string ToString()
         {
             StringBuilder SB = new StringBuilder();
