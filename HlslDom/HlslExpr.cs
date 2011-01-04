@@ -137,6 +137,7 @@ namespace Hlsl.Expressions
         Type Type;
         string Name;
         Value InitValue;
+        bool IsConst;
         static int Counter;
 
         /// <summary>
@@ -187,6 +188,44 @@ namespace Hlsl.Expressions
             InitValue = value;
         }
 
+        /// <summary>
+        /// Create a variable declaration initialized to the value of the given expression.
+        /// </summary>
+        /// <param name="expression">Expression; must resolve to a value.</param>
+        public DeclExpr(Expr expression)
+        {
+            if (!expression.HasValue())
+                throw new ShaderDomException("Provided expression must resolve to a value!");
+
+            Type = expression.Value.ValueType;
+            Name = string.Format("var{0}", Counter++);
+            InitValue = expression.Value;
+        }
+
+        /// <summary>
+        /// Create a named variable declaration initialized to the value of the given expression.
+        /// </summary>
+        /// <param name="expression">Expression; must resolve to a value.</param>
+        /// <param name="name">Variable name.</param>
+        public DeclExpr(Expr expression, string name)
+        {
+            if (!expression.HasValue())
+                throw new ShaderDomException("Provided expression must resolve to a value!");
+
+            Type = expression.Value.ValueType;
+            Name = name;
+            InitValue = expression.Value;
+        }
+
+        /// <summary>
+        /// Set this variable declaration to be const.
+        /// </summary>
+        /// <param name="isConst">True if const, false otherwise.</param>
+        public void SetConst(bool isConst)
+        {
+            IsConst = isConst;
+        }
+
         public override bool HasValue()
         {
             return true;
@@ -200,10 +239,12 @@ namespace Hlsl.Expressions
         public override string ToString()
         {
             StringBuilder SB = new StringBuilder();
+            string constString = IsConst ? "const " : "";
+
             if (InitValue == null)
-                SB.AppendFormat("{0} {1};", Type.TypeName(), Name);
+                SB.AppendFormat("{0}{1} {1};", constString, Type.TypeName(), Name);
             else
-                SB.AppendFormat("{0} {1} = {2};", Type.TypeName(), Name, InitValue);
+                SB.AppendFormat("{0}{1} {2} = {3};", constString, Type.TypeName(), Name, InitValue);
 
             return SB.ToString();
         }
@@ -607,7 +648,7 @@ namespace Hlsl.Expressions
 
             // Clip has no return value.
             if (!(Fn is Hlsl.Intrinsics.Clip))
-                SB.AppendFormat("{0} {1} = {2}(", FnValue.ValueType.TypeName(), FnValue, Fn.Name);
+                SB.AppendFormat("const {0} {1} = {2}(", FnValue.ValueType.TypeName(), FnValue, Fn.Name);
             else
                 SB.AppendFormat("{0}(", Fn.Name);        
 
