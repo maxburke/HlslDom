@@ -130,7 +130,18 @@ namespace Hlsl
         /// <returns>A Value instance representing the parameter.</returns>
         public Value AddArgument(Type argType)
         {
-            Value v = new Value(argType, string.Format("arg{0}", Arguments.Count));
+            return AddArgument(argType, string.Format("arg{0}", Arguments.Count));
+        }
+
+        /// <summary>
+        /// Adds a named argument to the function.
+        /// </summary>
+        /// <param name="argType">Argument type.</param>
+        /// <param name="argName">Argument name.</param>
+        /// <returns>A value instance representing the parameter.</returns>
+        public Value AddArgument(Type argType, string argName)
+        {
+            Value v = new Value(argType, argName);
             Arguments.Add(new Pair<Value, Semantic>(v, new Semantic(Semantic.SemanticType.NONE)));
 
             return v;
@@ -212,7 +223,7 @@ namespace Hlsl
 
             for (int i = 0; i < Arguments.Count; ++i)
             {
-                string separator = i < Arguments.Count - 1 ? "," : "";
+                string separator = i < Arguments.Count - 1 ? ", " : "";
 
                 Semantic none = new Semantic(Semantic.SemanticType.NONE);
                 if (Arguments[i].second != none)
