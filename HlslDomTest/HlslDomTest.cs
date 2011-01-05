@@ -131,6 +131,11 @@ namespace Hlsl
                     new StructMemberExpr(output.Value, 4),
                 };
 
+                udf.AddExpr(new CommentExpr("Ensuring that a valid comment is being emitted."));
+                udf.AddExpr(new CommentExpr("Even one that consists of multiple lines."));
+                udf.AddExpr(new CommentExpr(string.Format("Or embedded newlines.{0}Like this!", Environment.NewLine)));
+                udf.AddExpr(new CommentExpr("Or this.\n(not a proper newline.)"));
+
                 foreach (StructMemberExpr SME in otherMembers)
                     udf.AddExpr(new AssignmentExpr(SME.Value, new LiteralExpr(SME.Value.ValueType).Value));
 

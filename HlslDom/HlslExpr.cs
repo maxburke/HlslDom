@@ -242,7 +242,7 @@ namespace Hlsl.Expressions
             string constString = IsConst ? "const " : "";
 
             if (InitValue == null)
-                SB.AppendFormat("{0}{1} {1};", constString, Type.TypeName(), Name);
+                SB.AppendFormat("{0}{1} {2};", constString, Type.TypeName(), Name);
             else
                 SB.AppendFormat("{0}{1} {2} = {3};", constString, Type.TypeName(), Name, InitValue);
 
@@ -904,6 +904,38 @@ namespace Hlsl.Expressions
         public override string ToString()
         {
             return FieldValue.Name;
+        }
+    }
+
+    /// <summary>
+    /// CommentExprs emit a comment into the generated shader source.
+    /// </summary>
+    public class CommentExpr : Expr
+    {
+        string CommentText;
+
+        /// <summary>
+        /// Construct a CommentExpr with the specified text. Note all embedded new lines will be replaced with spaces.
+        /// </summary>
+        /// <param name="text">Comment text.</param>
+        public CommentExpr(string text)
+        {
+            CommentText = text.Replace(Environment.NewLine, " ").Replace("\n", " ").Replace("\r", "");
+        }
+
+        public override bool HasValue()
+        {
+            return false;
+        }
+
+        public override Value Value
+        {
+            get { throw new ShaderDomException("CommentExprs have no value!"); }
+        }
+
+        public override string ToString()
+        {
+            return "// " + CommentText;
         }
     }
 }
