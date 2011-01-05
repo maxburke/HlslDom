@@ -148,6 +148,32 @@ namespace Hlsl
         }
 
         /// <summary>
+        /// Return an indexed arguments value.
+        /// </summary>
+        /// <param name="index">The index of the argument.</param>
+        /// <returns>A value instance representing the parameter.</returns>
+        public Value GetArgument(int index)
+        {
+            return Arguments[index].first;
+        }
+
+        /// <summary>
+        /// Searches arguments for the named parameter.
+        /// </summary>
+        /// <param name="name">Named parameter to search for.</param>
+        /// <returns>A value instance representing the parameter.</returns>
+        public Value GetArgument(string name)
+        {
+            foreach (var v in Arguments)
+            {
+                if (v.first.Name == name)
+                    return v.first;
+            }
+
+            throw new ShaderDomException(string.Format("Argument {0} does not exist!", name));
+        }
+
+        /// <summary>
         /// Adds an argument to the function with a specified semantic.
         /// </summary>
         /// <param name="argType">Argument type.</param>
