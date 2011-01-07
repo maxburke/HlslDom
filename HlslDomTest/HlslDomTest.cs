@@ -120,7 +120,6 @@ namespace Hlsl
                 // Initialize the position element -- multiply input position by WVP matrix.
                 Function fn = program.GetFunctionByName("mul");
                 CallExpr wvpMul = new CallExpr(fn, new Expr[] { new StructMemberExpr(argValue, "position"), wvpMatrixDecl });
-                udf.AddExpr(wvpMul);
                 udf.AddExpr(new AssignmentExpr(new StructMemberExpr(output.Value, "position").Value, wvpMul.Value));
 
                 // Initialize the rest of the struct to zero.

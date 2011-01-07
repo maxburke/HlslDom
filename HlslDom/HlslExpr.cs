@@ -592,8 +592,6 @@ namespace Hlsl.Expressions
     {
         Function Fn;
         Value[] Parameters;
-        Value FnValue;
-        static int Counter;
 
         public override bool HasValue()
         {
@@ -602,13 +600,7 @@ namespace Hlsl.Expressions
 
         public override Value Value
         {
-            get 
-            {
-                if (FnValue == null)
-                    FnValue = new Value(Fn.GetReturnType(Parameters), string.Format("fnResult{0}", Counter++));
-
-                return FnValue;
-            }
+            get { return new Value(Fn.GetReturnType(Parameters), ToString()); }
         }
 
         /// <summary>
@@ -646,16 +638,11 @@ namespace Hlsl.Expressions
         {
             StringBuilder SB = new StringBuilder();
 
-            // Clip has no return value.
-            if (!(Fn is Hlsl.Intrinsics.Clip))
-                SB.AppendFormat("const {0} {1} = {2}(", FnValue.ValueType.TypeName(), FnValue, Fn.Name);
-            else
-                SB.AppendFormat("{0}(", Fn.Name);        
-
+            SB.AppendFormat("{0}(", Fn.Name);
             for (int i = 0; i < Parameters.Length; ++i)
                 SB.AppendFormat("{0}{1}", Parameters[i], i < Parameters.Length - 1 ? ", " : "");
+            SB.Append(")");
 
-            SB.Append(");");
             return SB.ToString();
         }
     }
