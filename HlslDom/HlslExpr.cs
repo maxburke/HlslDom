@@ -746,8 +746,29 @@ namespace Hlsl.Expressions
             if (initializers == null || initializers.Length == 0)
                 throw new ShaderDomException("Literal initializer must be specified.");
 
-            if (initializers.Length != LiteralType.TotalElements)
-                throw new ShaderDomException("Literal initializers must be provided for all elements!");
+            // Handle the case where a literal may be initialized partially with a type
+            // of smaller dimension. For example:
+            // float4 vector = float4(somefloat3, 1);
+            // In this case the number of initializers will be less than the total dimension
+            // of the desired type, so the code here sums the dimensions of all specified
+            // initializers.
+            int numElements = 0;
+            foreach (object param in initializers)
+            {
+                Value value = param as Value;
+                if (value != null)
+                {
+                    Type T = value.ValueType;
+                    numElements += T.TotalElements;
+                }
+                else if (param is Int32 || param is UInt32 || param is Single || param is Double)
+                {
+                    ++numElements;
+                }
+            }
+
+            if (numElements != LiteralType.TotalElements)
+                throw new ShaderDomException("Initializers must be provided for all elements!");
         }
 
         public override Value Value
@@ -760,7 +781,7 @@ namespace Hlsl.Expressions
 
         public override bool HasValue()
         {
-            return false;
+            return true;
         }
 
         public override string ToString()
@@ -923,6 +944,45 @@ namespace Hlsl.Expressions
         public override string ToString()
         {
             return "// " + CommentText;
+        }
+    }
+
+    /// <summary>
+    /// Represents a vector swizzle operation (ie, float4(1.0f, 2.0f, 3.0f, 4.0f).xzwy)
+    /// </summary>
+    public class SwizzleExpr : Expr
+    {
+        Value SwizzleValue;
+        string SwizzleString;
+        Type ResultType;
+
+        public SwizzleExpr(Value input, string swizzleString)
+        {
+            if (!(input.ValueType is VectorType))
+                throw new ShaderDomException("Swizzling is a valid operation only for vector types.");
+
+            if (swizzleString.Length == 0 || swizzleString.Length > 4)
+                throw new ShaderDomException("Swizzle string must be between 1 and 4 elements inclusive.");
+
+            SwizzleValue = input;
+            SwizzleString = swizzleString;
+
+            ResultType = TypeRegistry.GetVectorType(input.ValueType.GetScalarBaseType(), swizzleString.Length);
+        }
+
+        public override bool HasValue()
+        {
+            return true;
+        }
+
+        public override Value Value
+        {
+            get { return new Value(ResultType, ToString()); }
+        }
+
+        public override string ToString()
+        {
+            return SwizzleValue.Name + "." + SwizzleString;
         }
     }
 }
