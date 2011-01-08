@@ -209,7 +209,7 @@ namespace Hlsl
 
         public override string TypeName()
         {
-            throw new NotImplementedException();
+            return "sampler";
         }
 
         public override Type GetScalarBaseType()
