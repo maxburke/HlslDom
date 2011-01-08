@@ -54,6 +54,7 @@ namespace Hlsl.Intrinsics
                 "degrees",
                 "exp",
                 "exp2",
+                "frac",
                 "floor",
                 "fmod",
                 "fwidth",
@@ -979,8 +980,9 @@ namespace Hlsl.Intrinsics
                 return false;
 
             if (HasDdxDdy)
-                if (!VerifyDimensions(args[2]) || !VerifyDimensions(args[3]))
-                    return false;
+                if (HasMandatoryDdxDdy || args.Length == 4)
+                    if (!VerifyDimensions(args[2]) || !VerifyDimensions(args[3]))
+                        return false;
 
             return true;
         }
