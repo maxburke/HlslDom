@@ -91,6 +91,7 @@ namespace Hlsl
         List<Expr> Expressions = new List<Expr>();
         List<Pair<Value, Semantic>> Arguments = new List<Pair<Value, Semantic>>();
         Type FnReturnType;
+        Semantic? ReturnTypeSemantic;
 
         public UserDefinedFunction(string name)
             : base(name)
@@ -197,6 +198,16 @@ namespace Hlsl
         }
 
         /// <summary>
+        /// Add a number of expressions to the body of the function.
+        /// </summary>
+        /// <param name="expressions">List of expressions.</param>
+        public void AddExprs(params Expr[] expressions)
+        {
+            if (expressions.Length > 0)
+                Expressions.AddRange(expressions);
+        }
+
+        /// <summary>
         /// Returns the parameter value at index i.
         /// </summary>
         /// <param name="i">Argument index.</param>
@@ -238,13 +249,26 @@ namespace Hlsl
             return returnType;
         }
 
+        /// <summary>
+        /// Set the semantic for the function's return type.
+        /// </summary>
+        /// <param name="semantic">Desired semantic.</param>
+        public void SetReturnTypeSemantic(Semantic semantic)
+        {
+            Type returnType = DetermineReturnType();
+
+            if (returnType is StructType)
+                throw new ShaderDomException("Cannot add semantics to structure types!");
+
+            ReturnTypeSemantic = semantic;
+        }
+
         public override string ToString()
         {
             StringBuilder SB = new StringBuilder();
 
             Type returnType = DetermineReturnType();
             
-            /// TODO: Add support for return value sematics.
             SB.AppendFormat("{0} {1}(", returnType.TypeName(), Name);
 
             for (int i = 0; i < Arguments.Count; ++i)
@@ -258,7 +282,11 @@ namespace Hlsl
                     SB.AppendFormat("{0} {1}{2}", Arguments[i].first.ValueType.TypeName(), Arguments[i].first.Name, separator);
             }
 
-            SB.AppendLine(") {");
+            if (ReturnTypeSemantic == null)
+                SB.AppendLine(") {");
+            else
+                SB.AppendFormat(") : {0} {{{1}", ReturnTypeSemantic, Environment.NewLine);
+
 
             foreach (Expr E in Expressions)
                 SB.AppendLine("    " + E.ToString());
@@ -299,6 +327,7 @@ namespace Hlsl
             Functions.Add(new Intrinsics.Dot());
             Functions.Add(new Intrinsics.Faceforward());
             Functions.Add(new Intrinsics.Frexp());
+            Functions.Add(new Intrinsics.Fmod());
             Functions.Add(new Intrinsics.Ldexp());
             Functions.Add(new Intrinsics.Length());
             Functions.Add(new Intrinsics.Lerp());
