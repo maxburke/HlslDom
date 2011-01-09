@@ -14,9 +14,8 @@ using System.Text;
 namespace Hlsl.Expressions
 {
     /// <summary>
-    /// The opcode class represents operators like add, subtract,
-    /// multiply, divide, and other operations like shifts and 
-    /// boolean operations.
+    /// The opcode enumeration represents operators like add, subtract, multiply, 
+    /// divide, and other operations like shifts and bitwise operations.
     /// </summary>
     public enum OpCode
     {
@@ -32,6 +31,19 @@ namespace Hlsl.Expressions
         OR,
         XOR,
         NOT,
+    }
+
+    /// <summary>
+    /// The comparison enumeration represents comparison operators.
+    /// </summary>
+    public enum Comparison
+    {
+        EQUAL,
+        NOT_EQUAL,
+        LESS,
+        LESS_EQUAL,
+        GREATER,
+        GREATER_EQUAL
     }
 
     /// <summary>
@@ -104,6 +116,9 @@ namespace Hlsl.Expressions
         {
             if (lhs.ValueType != rhs.ValueType)
                 throw new ShaderDomException("BinaryExpr types must match!");
+
+            if (!(lhs.ValueType is StructType) && (lhs.ValueType.TotalElements != rhs.ValueType.TotalElements))
+                throw new ShaderDomException("Type sizes must match!");
 
             if (oper == OpCode.IDENTITY)
                 throw new ShaderDomException("Identity operator is not valid!");
@@ -956,6 +971,11 @@ namespace Hlsl.Expressions
         string SwizzleString;
         Type ResultType;
 
+        /// <summary>
+        /// Construct a swizzle expression with the specified swizzle component. 
+        /// </summary>
+        /// <param name="input">Value to swizzle.</param>
+        /// <param name="swizzleString">Swizzle.</param>
         public SwizzleExpr(Value input, string swizzleString)
         {
             if (!(input.ValueType is VectorType))
@@ -983,6 +1003,118 @@ namespace Hlsl.Expressions
         public override string ToString()
         {
             return SwizzleValue.Name + "." + SwizzleString;
+        }
+    }
+
+    /// <summary>
+    /// Ternary expressions represent the three-term conditional expression, <c>[test] ? [ifTrue] : [ifFalse]</c>.
+    /// The test expression must evaluate to a boolean value, while both the ifTrue and ifFalse terms 
+    /// must have the same type.
+    /// </summary>
+    public class TernaryExpr : Expr
+    {
+        Expr TestExpr;
+        Expr IfTrue;
+        Expr IfFalse;
+
+        /// <summary>
+        /// Construct a ternary expression.
+        /// </summary>
+        /// <param name="testExpr">The value to perform the test on.</param>
+        /// <param name="ifTrue">Expression value if the test evaluates to true.</param>
+        /// <param name="ifFalse">Expression value if the test evaluates to false.</param>
+        public TernaryExpr(Expr testExpr, Expr ifTrue, Expr ifFalse)
+        {
+            if (!(testExpr.Value.ValueType is BoolType))
+                throw new ShaderDomException("Ternary expression test must evaluate to a boolean type!");
+
+            if (ifTrue.Value.ValueType != ifFalse.Value.ValueType)
+                throw new ShaderDomException("Both sides of the ternary expression must evaluate to the same type!");
+
+            TestExpr = testExpr;
+            IfTrue = ifTrue;
+            IfFalse = ifFalse;
+        }
+
+        public override bool HasValue()
+        {
+            return true;
+        }
+
+        public override Value Value
+        {
+            get { return new Value(IfTrue.Value.ValueType, ToString()); }
+        }
+
+        public override string ToString()
+        {
+            return string.Format("({0}) ? ({1}) : ({2})", TestExpr, IfTrue, IfFalse);
+        }
+    }
+
+    /// <summary>
+    /// Similar to a BooleanExpr, ComparisonExprs are a two-term expression that use a comparison
+    /// operator, such as !=, to perform a test on two values.
+    /// </summary>
+    public class ComparisonExpr : Expr
+    {
+        Value LHS;
+        Value RHS;
+        Comparison ComparisonType;
+
+        /// <summary>
+        /// Construct a comparison expression.
+        /// </summary>
+        /// <param name="lhs">Left hand side value.</param>
+        /// <param name="rhs">Right hand side value.</param>
+        /// <param name="comparisonType">Type of comparison to perform.</param>
+        public ComparisonExpr(Value lhs, Value rhs, Comparison comparisonType)
+        {
+            if (lhs.ValueType != rhs.ValueType)
+                throw new ShaderDomException("Types must be equal in order to be compared!");
+
+            LHS = lhs;
+            RHS = rhs;
+            ComparisonType = comparisonType;
+        }
+
+        public override bool HasValue()
+        {
+            return true;
+        }
+
+        public override Value Value
+        {
+            get { return new Value(TypeRegistry.GetBoolType(), ToString()); }
+        }
+
+        public override string ToString()
+        {
+            string comparisonString = null;
+
+            switch (ComparisonType)
+            {
+                case Comparison.EQUAL:
+                    comparisonString = "==";
+                    break;
+                case Comparison.NOT_EQUAL:
+                    comparisonString = "!=";
+                    break;
+                case Comparison.LESS:
+                    comparisonString = "<";
+                    break;
+                case Comparison.LESS_EQUAL:
+                    comparisonString = "<=";
+                    break;
+                case Comparison.GREATER:
+                    comparisonString = ">";
+                    break;
+                case Comparison.GREATER_EQUAL:
+                    comparisonString = ">=";
+                    break;
+            }
+
+            return string.Format("{0} {1} {2}", LHS, comparisonString, RHS);
         }
     }
 }
