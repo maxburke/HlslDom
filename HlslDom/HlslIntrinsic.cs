@@ -56,7 +56,6 @@ namespace Hlsl.Intrinsics
                 "exp2",
                 "frac",
                 "floor",
-                "fmod",
                 "fwidth",
                 "log",
                 "log10",
@@ -291,6 +290,32 @@ namespace Hlsl.Intrinsics
                     return false;
                 }
             }
+
+            return true;
+        }
+
+        public override Type GetReturnType(Value[] args)
+        {
+            return args[0].ValueType;
+        }
+    }
+
+    class Fmod : Function
+    {
+        public Fmod()
+            : base("fmod")
+        { }
+
+        public override bool IsValidCall(Value[] args)
+        {
+            if (args.Length != 2)
+                return false;
+
+            if (args[0].ValueType != args[1].ValueType)
+                return false;
+
+            if (args[0].ValueType is SamplerType || args[0].ValueType is StructType)
+                return false;
 
             return true;
         }
