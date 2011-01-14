@@ -152,6 +152,7 @@ namespace Hlsl.Expressions
         Type Type;
         string Name;
         Value InitValue;
+        string Register;
         bool IsConst;
         static int Counter;
 
@@ -241,6 +242,15 @@ namespace Hlsl.Expressions
             IsConst = isConst;
         }
 
+        /// <summary>
+        /// Set the register that this declaration is bound to.
+        /// </summary>
+        /// <param name="register">Register string (ie: c0, s1, etc.).</param>
+        public void SetRegister(string register)
+        {
+            Register = register;
+        }
+
         public override bool HasValue()
         {
             return true;
@@ -256,10 +266,20 @@ namespace Hlsl.Expressions
             StringBuilder SB = new StringBuilder();
             string constString = IsConst ? "const " : "";
 
-            if (InitValue == null)
-                SB.AppendFormat("{0}{1} {2};", constString, Type.TypeName(), Name);
+            if (Register != null)
+            {
+                if (InitValue != null)
+                    throw new ShaderDomException("Cannot initialize a global variable!");
+
+                SB.AppendFormat("{0}{1} {2} : register({3});", constString, Type.TypeName(), Name, Register);
+            }
             else
-                SB.AppendFormat("{0}{1} {2} = {3};", constString, Type.TypeName(), Name, InitValue);
+            {
+                if (InitValue == null)
+                    SB.AppendFormat("{0}{1} {2};", constString, Type.TypeName(), Name);
+                else
+                    SB.AppendFormat("{0}{1} {2} = {3};", constString, Type.TypeName(), Name, InitValue);
+            }
 
             return SB.ToString();
         }
