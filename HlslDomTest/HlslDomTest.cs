@@ -42,7 +42,7 @@ namespace Hlsl
                     return program.EmitRawShaderCode();
                 }
             }
-            catch (ShaderDomException)
+            catch (HlslDomException)
             {
             }
 

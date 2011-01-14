@@ -219,12 +219,12 @@ namespace Hlsl
 
         public override int Dimension
         {
-            get { throw new ShaderDomException("Invalid operation on SamplerType."); }
+            get { throw new HlslDomException("Invalid operation on SamplerType."); }
         }
 
         public override int TotalElements
         {
-            get { throw new ShaderDomException("Invalid operation on SamplerType."); }
+            get { throw new HlslDomException("Invalid operation on SamplerType."); }
         }
     }
 
@@ -253,7 +253,7 @@ namespace Hlsl
         public VectorType(Type baseType, int dimension)
         {
             if (!(baseType is ScalarType))
-                throw new ShaderDomException("Vector base type must be a scalar!");
+                throw new HlslDomException("Vector base type must be a scalar!");
 
             BaseType = baseType;
             VectorDimension = dimension;
@@ -302,7 +302,7 @@ namespace Hlsl
         public MatrixType(Type baseType, int dimension)
         {
             if (!(baseType is VectorType))
-                throw new ShaderDomException("Matrix base type must be a vector!");
+                throw new HlslDomException("Matrix base type must be a vector!");
 
             BaseType = baseType;
             MatrixDimension = dimension;
@@ -379,17 +379,17 @@ namespace Hlsl
 
         public override Type GetScalarBaseType()
         {
-            throw new ShaderDomException("Invalid operation on StructType.");
+            throw new HlslDomException("Invalid operation on StructType.");
         }
 
         public override int Dimension
         {
-            get { throw new ShaderDomException("Invalid operation on StructType."); }
+            get { throw new HlslDomException("Invalid operation on StructType."); }
         }
 
         public override int TotalElements
         {
-            get { throw new ShaderDomException("Invalid operation on StructType."); }
+            get { throw new HlslDomException("Invalid operation on StructType."); }
         }
     }
 
@@ -529,7 +529,7 @@ namespace Hlsl
                 if (allFieldsMatch)
                     return ST;
                 else
-                    throw new ShaderDomException("Redefinition of existing struct type!");
+                    throw new HlslDomException("Redefinition of existing struct type!");
             }
 
             StructType newST = new StructType(name, fields);

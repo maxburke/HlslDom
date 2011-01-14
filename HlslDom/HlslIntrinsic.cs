@@ -103,7 +103,7 @@ namespace Hlsl.Intrinsics
 
         public override Type GetReturnType(Value[] args)
         {
-            throw new ShaderDomException("'clip' has no return value.");
+            throw new HlslDomException("'clip' has no return value.");
         }
     }
     #endregion
@@ -888,7 +888,7 @@ namespace Hlsl.Intrinsics
                 }
             }
 
-            throw new ShaderDomException("Unable to determine return type.");
+            throw new HlslDomException("Unable to determine return type.");
         }
 
         public override bool IsValidCall(Value[] args)

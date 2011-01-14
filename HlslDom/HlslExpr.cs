@@ -115,13 +115,13 @@ namespace Hlsl.Expressions
         public BinaryExpr(Value lhs, Value rhs, OpCode oper)
         {
             if (lhs.ValueType != rhs.ValueType)
-                throw new ShaderDomException("BinaryExpr types must match!");
+                throw new HlslDomException("BinaryExpr types must match!");
 
             if (!(lhs.ValueType is StructType) && (lhs.ValueType.TotalElements != rhs.ValueType.TotalElements))
-                throw new ShaderDomException("Type sizes must match!");
+                throw new HlslDomException("Type sizes must match!");
 
             if (oper == OpCode.IDENTITY)
-                throw new ShaderDomException("Identity operator is not valid!");
+                throw new HlslDomException("Identity operator is not valid!");
 
             LHS = lhs;
             RHS = rhs;
@@ -211,7 +211,7 @@ namespace Hlsl.Expressions
         public DeclExpr(Expr expression)
         {
             if (!expression.HasValue())
-                throw new ShaderDomException("Provided expression must resolve to a value!");
+                throw new HlslDomException("Provided expression must resolve to a value!");
 
             Type = expression.Value.ValueType;
             Name = string.Format("var{0}", Counter++);
@@ -226,7 +226,7 @@ namespace Hlsl.Expressions
         public DeclExpr(Expr expression, string name)
         {
             if (!expression.HasValue())
-                throw new ShaderDomException("Provided expression must resolve to a value!");
+                throw new HlslDomException("Provided expression must resolve to a value!");
 
             Type = expression.Value.ValueType;
             Name = name;
@@ -269,7 +269,7 @@ namespace Hlsl.Expressions
             if (Register != null)
             {
                 if (InitValue != null)
-                    throw new ShaderDomException("Cannot initialize a global variable!");
+                    throw new HlslDomException("Cannot initialize a global variable!");
 
                 SB.AppendFormat("{0}{1} {2} : register({3});", constString, Type.TypeName(), Name, Register);
             }
@@ -297,7 +297,7 @@ namespace Hlsl.Expressions
         public CommaExpr(Expr lhs, Expr rhs)
         {
             if (!lhs.HasValue() || !rhs.HasValue())
-                throw new ShaderDomException("Both the left and right hand sides of the comma expression must have a value!");
+                throw new HlslDomException("Both the left and right hand sides of the comma expression must have a value!");
 
             LHS = lhs;
             RHS = rhs;
@@ -344,7 +344,7 @@ namespace Hlsl.Expressions
 
         public override Value Value
         {
-            get { throw new ShaderDomException("CompoundExprs have no value!"); }
+            get { throw new HlslDomException("CompoundExprs have no value!"); }
         }
 
         public override string ToString()
@@ -368,10 +368,10 @@ namespace Hlsl.Expressions
         public IfExpr(Expr test)
         {
             if (!test.HasValue())
-                throw new ShaderDomException("Test expression doesn't return a value!");
+                throw new HlslDomException("Test expression doesn't return a value!");
 
             if (!(test.Value.ValueType is BoolType))
-                throw new ShaderDomException("Test expression doesn't evaluate to a boolean type!");
+                throw new HlslDomException("Test expression doesn't evaluate to a boolean type!");
 
             Test = test;
         }
@@ -383,7 +383,7 @@ namespace Hlsl.Expressions
 
         public override Value Value
         {
-            get { throw new ShaderDomException("IfExprs have no value!"); }
+            get { throw new HlslDomException("IfExprs have no value!"); }
         }
 
         public override string ToString()
@@ -414,7 +414,7 @@ namespace Hlsl.Expressions
 
         public override Value Value
         {
-            get { throw new ShaderDomException("ElseExprs have no value!"); }
+            get { throw new HlslDomException("ElseExprs have no value!"); }
         }
 
         /// <summary>
@@ -456,7 +456,7 @@ namespace Hlsl.Expressions
 
         public override Value Value
         {
-            get { throw new ShaderDomException("WhileExprs have no value!"); }
+            get { throw new HlslDomException("WhileExprs have no value!"); }
         }
 
         /// <summary>
@@ -466,10 +466,10 @@ namespace Hlsl.Expressions
         public WhileExpr(Expr test)
         {
             if (!test.HasValue())
-                throw new ShaderDomException("Test expression doesn't return a value!");
+                throw new HlslDomException("Test expression doesn't return a value!");
 
             if (!(test.Value.ValueType is BoolType))
-                throw new ShaderDomException("Test expression doesn't evaluate to a boolean type!");
+                throw new HlslDomException("Test expression doesn't evaluate to a boolean type!");
 
             Test = test;
         }
@@ -556,7 +556,7 @@ namespace Hlsl.Expressions
             : this(initializer, test, update, attributes, 0)
         {
             if (attributes == LoopAttributes.UNROLL)
-                throw new ShaderDomException("Unroll attribute specified without an unroll depth!");
+                throw new HlslDomException("Unroll attribute specified without an unroll depth!");
         }
 
         /// <summary>
@@ -570,10 +570,10 @@ namespace Hlsl.Expressions
         public ForExpr(DeclExpr initializer, Expr test, Expr update, LoopAttributes attributes, int unrollDepth)
         {
             if (!test.HasValue())
-                throw new ShaderDomException("Test expression doesn't return a value!");
+                throw new HlslDomException("Test expression doesn't return a value!");
 
             if (!(test.Value.ValueType is BoolType))
-                throw new ShaderDomException("Test expression does not return a boolean value!");
+                throw new HlslDomException("Test expression does not return a boolean value!");
 
             Initializer = initializer;
             Test = test;
@@ -589,7 +589,7 @@ namespace Hlsl.Expressions
 
         public override Value Value
         {
-            get { throw new ShaderDomException("ForExprs have no value!"); }
+            get { throw new HlslDomException("ForExprs have no value!"); }
         }
 
         public override string ToString()
@@ -652,7 +652,7 @@ namespace Hlsl.Expressions
                 Parameters[i] = parameters[i].Value;
 
             if (!fn.IsValidCall(Parameters))
-                throw new ShaderDomException(string.Format("Call to {0} is not valid!", fn.Name));
+                throw new HlslDomException(string.Format("Call to {0} is not valid!", fn.Name));
         }
 
         /// <summary>
@@ -666,7 +666,7 @@ namespace Hlsl.Expressions
             Parameters = parameterValues;
 
             if (!fn.IsValidCall(Parameters))
-                throw new ShaderDomException(string.Format("Call to {0} is not valid!", fn.Name));
+                throw new HlslDomException(string.Format("Call to {0} is not valid!", fn.Name));
         }
 
         public override string ToString()
@@ -697,7 +697,7 @@ namespace Hlsl.Expressions
 
         public override Value Value
         {
-            get { throw new ShaderDomException("AssignmentExprs have no value!"); }
+            get { throw new HlslDomException("AssignmentExprs have no value!"); }
         }
 
         public override bool HasValue()
@@ -750,7 +750,7 @@ namespace Hlsl.Expressions
         public LiteralExpr(Type literalType)
         {
             if (literalType is SamplerType)
-                throw new ShaderDomException("Unable to specify literal sampler value.");
+                throw new HlslDomException("Unable to specify literal sampler value.");
 
             LiteralType = literalType;
             object initializer = null;
@@ -779,7 +779,7 @@ namespace Hlsl.Expressions
             Initializers = initializers;
 
             if (initializers == null || initializers.Length == 0)
-                throw new ShaderDomException("Literal initializer must be specified.");
+                throw new HlslDomException("Literal initializer must be specified.");
 
             // Handle the case where a literal may be initialized partially with a type
             // of smaller dimension. For example:
@@ -803,7 +803,7 @@ namespace Hlsl.Expressions
             }
 
             if (numElements != LiteralType.TotalElements)
-                throw new ShaderDomException("Initializers must be provided for all elements!");
+                throw new HlslDomException("Initializers must be provided for all elements!");
         }
 
         public override Value Value
@@ -901,7 +901,7 @@ namespace Hlsl.Expressions
         {
             StructType structType = value.ValueType as StructType;
             if (structType == null)
-                throw new ShaderDomException("StructMemberExpr only valid on structs!");
+                throw new HlslDomException("StructMemberExpr only valid on structs!");
 
             StructField field = structType.Fields[fieldIndex];
             FieldValue = new Value(field.FieldType, value.Name + "." + field.FieldName);
@@ -915,7 +915,7 @@ namespace Hlsl.Expressions
         public StructMemberExpr(Value value, StructField field)
         {
             if (!(value.ValueType is StructType))
-                throw new ShaderDomException("StructMemberExpr only valid on structs!");
+                throw new HlslDomException("StructMemberExpr only valid on structs!");
 
             FieldValue = new Value(field.FieldType, value.Name + "." + field.FieldName);
         }
@@ -929,7 +929,7 @@ namespace Hlsl.Expressions
         {
             StructType structType = value.ValueType as StructType;
             if (structType == null)
-                throw new ShaderDomException("StructMemberExpr only valid on structs!");
+                throw new HlslDomException("StructMemberExpr only valid on structs!");
 
             for (int i = 0; i < structType.Fields.Length; ++i)
             {
@@ -941,7 +941,7 @@ namespace Hlsl.Expressions
                 }
             }
 
-            throw new ShaderDomException(string.Format("Field {0} does not exist in type {1}!", fieldName, structType.Name));
+            throw new HlslDomException(string.Format("Field {0} does not exist in type {1}!", fieldName, structType.Name));
         }
 
         public override string ToString()
@@ -973,7 +973,7 @@ namespace Hlsl.Expressions
 
         public override Value Value
         {
-            get { throw new ShaderDomException("CommentExprs have no value!"); }
+            get { throw new HlslDomException("CommentExprs have no value!"); }
         }
 
         public override string ToString()
@@ -999,10 +999,10 @@ namespace Hlsl.Expressions
         public SwizzleExpr(Value input, string swizzleString)
         {
             if (!(input.ValueType is VectorType))
-                throw new ShaderDomException("Swizzling is a valid operation only for vector types.");
+                throw new HlslDomException("Swizzling is a valid operation only for vector types.");
 
             if (swizzleString.Length == 0 || swizzleString.Length > 4)
-                throw new ShaderDomException("Swizzle string must be between 1 and 4 elements inclusive.");
+                throw new HlslDomException("Swizzle string must be between 1 and 4 elements inclusive.");
 
             SwizzleValue = input;
             SwizzleString = swizzleString;
@@ -1046,10 +1046,10 @@ namespace Hlsl.Expressions
         public TernaryExpr(Expr testExpr, Expr ifTrue, Expr ifFalse)
         {
             if (!(testExpr.Value.ValueType is BoolType))
-                throw new ShaderDomException("Ternary expression test must evaluate to a boolean type!");
+                throw new HlslDomException("Ternary expression test must evaluate to a boolean type!");
 
             if (ifTrue.Value.ValueType != ifFalse.Value.ValueType)
-                throw new ShaderDomException("Both sides of the ternary expression must evaluate to the same type!");
+                throw new HlslDomException("Both sides of the ternary expression must evaluate to the same type!");
 
             TestExpr = testExpr;
             IfTrue = ifTrue;
@@ -1091,7 +1091,7 @@ namespace Hlsl.Expressions
         public ComparisonExpr(Value lhs, Value rhs, Comparison comparisonType)
         {
             if (lhs.ValueType != rhs.ValueType)
-                throw new ShaderDomException("Types must be equal in order to be compared!");
+                throw new HlslDomException("Types must be equal in order to be compared!");
 
             LHS = lhs;
             RHS = rhs;

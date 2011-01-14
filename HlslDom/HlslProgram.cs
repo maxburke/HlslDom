@@ -30,11 +30,11 @@ namespace Hlsl
     /// <summary>
     /// Generic exception thrown when BadThings(tm) are done with the underlying HlslDom.
     /// </summary>
-    public class ShaderDomException : Exception
+    public class HlslDomException : Exception
     {
         public new readonly string Message;
 
-        public ShaderDomException(string message)
+        public HlslDomException(string message)
         {
             Message = message;
         }
@@ -171,7 +171,7 @@ namespace Hlsl
                     return v.first;
             }
 
-            throw new ShaderDomException(string.Format("Argument {0} does not exist!", name));
+            throw new HlslDomException(string.Format("Argument {0} does not exist!", name));
         }
 
         /// <summary>
@@ -238,12 +238,12 @@ namespace Hlsl
                     if (returnType == null)
                         returnType = RE.Value.ValueType;
                     else if (returnType != RE.Value.ValueType)
-                        throw new ShaderDomException("Function cannot return different types");
+                        throw new HlslDomException("Function cannot return different types");
                 }
             }
 
             if (returnType == null)
-                throw new ShaderDomException("Function has no return type!");
+                throw new HlslDomException("Function has no return type!");
 
             FnReturnType = returnType;
             return returnType;
@@ -258,7 +258,7 @@ namespace Hlsl
             Type returnType = DetermineReturnType();
 
             if (returnType is StructType)
-                throw new ShaderDomException("Cannot add semantics to structure types!");
+                throw new HlslDomException("Cannot add semantics to structure types!");
 
             ReturnTypeSemantic = semantic;
         }
@@ -380,7 +380,7 @@ namespace Hlsl
                 if (fn.Name == name)
                     return fn;
 
-            throw new ShaderDomException("Function does not exist!");
+            throw new HlslDomException("Function does not exist!");
         }
 
         /// <summary>
@@ -390,7 +390,7 @@ namespace Hlsl
         public void AddFunction(UserDefinedFunction function)
         {
             if (Functions.Contains(function))
-                throw new ShaderDomException(string.Format("Function {0} already exists!", function.Name));
+                throw new HlslDomException(string.Format("Function {0} already exists!", function.Name));
 
             Functions.Add(function);
             UserFunctions.Add(function);
@@ -463,7 +463,7 @@ namespace Hlsl
             for (int i = 0; i < (int)ShaderType.NUM_SHADER_TYPES; ++i)
             {
                 if (Shaders[i].second == null)
-                    throw new ShaderDomException(string.Format("HlslProgram has null {0}", Enum.GetName(typeof(ShaderType), (object)i)));
+                    throw new HlslDomException(string.Format("HlslProgram has null {0}", Enum.GetName(typeof(ShaderType), (object)i)));
 
                 SB.AppendFormat("        {0} = compile {1} {2}();{3}",
                     Enum.GetName(typeof(ShaderType), (object)i),
