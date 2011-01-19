@@ -1007,7 +1007,10 @@ namespace Hlsl.Expressions
             SwizzleValue = input;
             SwizzleString = swizzleString;
 
-            ResultType = TypeRegistry.GetVectorType(input.ValueType.GetScalarBaseType(), swizzleString.Length);
+            if (swizzleString.Length > 1)
+                ResultType = TypeRegistry.GetVectorType(input.ValueType.GetScalarBaseType(), swizzleString.Length);
+            else
+                ResultType = input.ValueType.GetScalarBaseType();
         }
 
         public override bool HasValue()
